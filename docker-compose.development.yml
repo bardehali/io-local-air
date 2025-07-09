@@ -1,0 +1,102 @@
+version: '3.3'
+
+name: ioffer-development
+services:
+  mysql:
+    image: mysql:latest
+    platform: linux/amd64
+    restart: unless-stopped
+    ports:
+      - "3307:3306"
+    tty: true
+    volumes:
+      - mysql_dev_data:/var/lib/mysql
+      - mysql_dev_run:/var/run/mysqld
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: ioffer_development
+      MYSQL_USER: deploy
+      MYSQL_PASSWORD: deploy123
+      MYSQL_AUTHENTICATION_PLUGIN: mysql_native_password
+    networks:
+      - ioffer-dev-network
+
+  redis:
+    image: redis:6.2.7-alpine
+    ports:
+      - "6380:6379"
+    tty: true
+    volumes:
+      - redis_dev_data:/data
+      - ./doc/config/redis.conf.development:/redis.conf
+    command: [ "redis-server", "/redis.conf" ]
+    networks:
+      - ioffer-dev-network
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.16.2
+    environment:
+      - cluster.name=ioffer-dev-cluster
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - discovery.type=single-node
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - es_dev_data:/usr/share/elasticsearch/data
+    ports:
+      - "9201:9200"
+      - "9301:9300"
+    tty: true
+    networks:
+      - ioffer-dev-network
+
+  rails:
+    build:
+      context: .
+      dockerfile: Dockerfile.ruby
+    command: /bin/sh -c "rm -f /var/www/shoppn_spree/tmp/pids/server.pid && bundle install && bundle exec rails s -p 3000 -b '0.0.0.0'"
+    depends_on:
+      - mysql
+      - redis
+      - elasticsearch
+    environment:
+      - RAILS_ENV=development
+      - MYSQL_HOST=mysql
+      - MYSQL_PORT=3306
+      - MYSQL_DATABASE=ioffer_development
+      - MYSQL_USER=deploy
+      - MYSQL_PASSWORD=deploy123
+      - REDIS_URL=redis://redis:6379/0
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
+    ports:
+      - "3000:3000"
+    tty: true
+    stdin_open: true
+    volumes:
+      - .:/var/www/shoppn_spree
+      - bundler_dev_gems:/usr/local/bundle/
+      - assets_dev_store:/var/www/shoppn_spree/public/
+      - mysql_dev_run:/var/run/mysqld
+    networks:
+      - ioffer-dev-network
+
+volumes:
+  bundler_dev_gems:
+    driver: local
+  assets_dev_store:
+    driver: local
+  mysql_dev_data:
+    driver: local
+  mysql_dev_run:
+    driver: local
+  redis_dev_data:
+    driver: local
+  es_dev_data:
+    driver: local
+
+networks:
+  ioffer-dev-network:
+    driver: bridge
