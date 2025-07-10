@@ -1,17 +1,17 @@
 # docker-compose.yml
 version: '3.3'
 
-name: ioffer
+name: air
 services:
   mysql:
+    container_name: air_mysql
     image: mysql:latest
     platform: linux/amd64
     restart: unless-stopped
     ports:
-      - 3306:3306
+      - 3307:3306
     tty: true
     volumes:
-      - /Volumes/LocalIO/DATABASE/docker-data/mysql-run:/var/run/mysqld
       - /Volumes/LocalIO/DATABASE/docker-data/mysql:/var/lib/mysql
     environment:
       MYSQL_ROOT_PASSWORD: root
@@ -20,14 +20,16 @@ services:
       MYSQL_PASSWORD: deploy123
       MYSQL_AUTHENTICATION_PLUGIN: mysql_native_password
   redis:
+    container_name: air_redis
     image: redis:6.2.7-alpine
     ports:
-      - 6379:6379
+      - 6380:6379
     tty: true
     volumes:
-      - ./doc/config/redis.conf.development:/redis.conf
-    command: [ "redis-server", "/redis.conf" ]
+      - /Volumes/LocalIO/DATABASE/docker-data/redis-air:/data
+    command: [ "redis-server" ]
   elasticsearch:
+    container_name: air_elasticsearch
     image: docker.elastic.co/elasticsearch/elasticsearch:7.16.2
     environment:
       - cluster.name=docker-cluster
@@ -41,10 +43,11 @@ services:
     volumes:
       - /Volumes/LocalIO/DATABASE/docker-data/elasticsearch:/usr/share/elasticsearch/data
     ports:
-      - 9200:9200
-      - 9300:9300
+      - 9201:9200
+      - 9301:9300
     tty: true
   rails:
+    container_name: air_rails
     build:
       context: .
       dockerfile: Dockerfile.ruby
@@ -61,7 +64,7 @@ services:
       - MYSQL_PASSWORD=deploy123
       - RAILS_ENV=development
     ports:
-      - 8000:8000
+      - 3001:8000
     tty: true
     volumes:
       - mysql_store:/var/run/mysqld
