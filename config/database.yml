@@ -1,6 +1,6 @@
 development:
   adapter: mysql2
-  database: ioffer_development
+  database: spree_development
   username: deploy
   password: deploy123
   host: mysql

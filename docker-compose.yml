@@ -11,11 +11,11 @@ services:
       - 3306:3306
     tty: true
     volumes:
-      - /Volumes/LocalIO/ioffer/data/mysql-run:/var/run/mysqld
-      - /Volumes/LocalIO/ioffer/data/mysql:/var/lib/mysql
+      - /Volumes/LocalIO/DATABASE/docker-data/mysql-run:/var/run/mysqld
+      - /Volumes/LocalIO/DATABASE/docker-data/mysql:/var/lib/mysql
     environment:
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: ioffer_development
+      MYSQL_DATABASE: spree_development
       MYSQL_USER: deploy
       MYSQL_PASSWORD: deploy123
       MYSQL_AUTHENTICATION_PLUGIN: mysql_native_password
@@ -39,7 +39,7 @@ services:
         soft: -1
         hard: -1
     volumes:
-      - /Volumes/LocalIO/ioffer/data/elasticsearch:/usr/share/elasticsearch/data
+      - /Volumes/LocalIO/DATABASE/docker-data/elasticsearch:/usr/share/elasticsearch/data
     ports:
       - 9200:9200
       - 9300:9300
@@ -56,7 +56,7 @@ services:
     environment:
       - ELASTICSEARCH_URL=http://elasticsearch:9200
       - MYSQL_HOST=mysql
-      - MYSQL_DATABASE=ioffer_development
+      - MYSQL_DATABASE=spree_development
       - MYSQL_USER=deploy
       - MYSQL_PASSWORD=deploy123
       - RAILS_ENV=development
