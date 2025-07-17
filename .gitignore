@@ -104,9 +104,9 @@ data/
 # Database backup files
 ioffer_production_db_*.sql.gz
 
-# Local deployment documentation and scripts (temporarily allowing for backup)
-# basic_deployment_guide.md
-# DEPLOYMENT_GUIDE.md
-# DEPLOYMENT_SAFETY_CHECKLIST.md
-# deploy_all.sh
-# emergency_rollback.sh
+# Local deployment documentation and scripts (keep these local only)
+basic_deployment_guide.md
+DEPLOYMENT_GUIDE.md
+DEPLOYMENT_SAFETY_CHECKLIST.md
+deploy_all.sh
+emergency_rollback.sh
